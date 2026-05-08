@@ -121,6 +121,47 @@ def main():
 
     sentence_encoding_model = keras.Model(input_layer, output_layer, name="USE_Model")
     sentence_encoding_history = compile_and_fit(sentence_encoding_model, x_train_np, y_train_np, x_test_np, y_test_np)
-    
+
+    #collect the metrics for all models
+    results = {
+    'Dense Embedding': get_metrics(dense_embedding_model, x_test_np, y_test_np),
+    'Bi-LSTM': get_metrics(bi_lstm_model, x_test_np, y_test_np),
+    'Transfer Learning (USE)': get_metrics(sentence_encoding_model, x_test_np, y_test_np)
+    }
+
+    results_df = pd.DataFrame(results).transpose()
+    print("Performance Table:")
+    print(results_df)
+
+    #visualizing the results
+    results_df.plot(kind='bar', figsize=(10, 6))
+    plt.title("Model Performance Metrics (Bar Chart)")
+    plt.ylabel("Score")
+    plt.ylim(0.8, 1.0)
+    plt.xticks(rotation=0)
+    plt.legend(loc='lower right')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.savefig('Model Performance Metrics (Bar Chart).png')
+    plt.show()
+
+    plt.figure(figsize=(10, 6))
+
+    for model_name in results_df.index:
+        plt.plot(
+            results_df.columns,
+            results_df.loc[model_name],
+            marker='o',
+            label=model_name,
+            linewidth=2
+        )
+    plt.title("Model Performance Trends (Line Graph)")
+    plt.ylabel("Score")
+    plt.xlabel("Metric")
+    plt.ylim(0.8, 1.0)
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.legend()
+    plt.savefig('Model Performance Trends (Line Graph).png')
+    plt.show()
+
 if __name__ == "__main__":
     main()
