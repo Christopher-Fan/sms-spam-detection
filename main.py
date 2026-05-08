@@ -37,6 +37,13 @@ def main():
     y_train_np = y_train.to_numpy()
     y_test_np = y_test.to_numpy()
 
+    #vectorizes the messages in order to find the average message length for use in padding 
+    avg_sms_len = round(sum([len(i.split()) for i in df['text']]) / len(df['text']))
+    total_sms_len = len(set(" ".join(df['text']).split()))
+
+    print(f"Data Loaded. Training samples: {len(x_train_np)}")
+    print(f"Average wrod per message: {avg_sms_len}")
+    print(f"Approximate vocabulary size: {total_sms_len}")
     
 if __name__ == "__main__":
     main()
