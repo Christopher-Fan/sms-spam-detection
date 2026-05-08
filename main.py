@@ -5,6 +5,7 @@ import seaborn as sns
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from tensorflow.keras.layers import TextVecotrization
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import tensorflow_hub as hub
@@ -68,7 +69,14 @@ def main():
     print(f"Average wrod per message: {avg_sms_len}")
     print(f"Approximate vocabulary size: {total_sms_len}")
 
-    
+    text_vec = TextVecotrization(
+        max_tokens=total_sms_len,
+        standardize='lower_and_strip_punctuation',
+        output_mode='int',
+        output_sequence_len=avg_sms_len
+    )
+
+    text_vec.adapt(x_train_np)
 
 if __name__ == "__main__":
     main()
