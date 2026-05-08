@@ -89,6 +89,20 @@ def main():
     dense_embedding_model = keras.Model(input_layer, output_layer, name="Dense_Model")
     dense_embedding_history = compile_and_fit(dense_embedding_model, x_train_np, y_train_np, x_test_np, y_test_np)
 
+    #create the second model (Bi-LSTM model)
+    input_layer = layers.Input(shape=(1,), dtype=tf.string)
+    x = text_vec(input_layer)
+    x = layers.Embedding(input_dim=total_sms_len, output_dim=128)(x)
+    x = layers.Bidirectional(layers.LSTM(64, return_sequences=True))(x)
+    x = layers.Bidirectional(layers.LSTM(64))(x)
+    x = layers.Flatten()(x)
+    x = layers.Dropout(0.1)(x)
+    x = layers.Dense(32, activation='relu')(x)
+    output_layer = layers.Dense(1, activation='sigmoid')(x)
+
+    bi_lstm_model = keras.Model(input_layer, output_layer, name="BiLSTM_Model")
+    bi_lstm_history = compile_and_fit(bi_lstm_model, x_train_np, y_train_np, x_test_np, y_test_np)
+
 
 if __name__ == "__main__":
     main()
