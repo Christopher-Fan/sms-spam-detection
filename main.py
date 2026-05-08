@@ -10,6 +10,29 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 import tensorflow_hub as hub
 import random
 
+def compile_and_fit(model, x_train_np, y_train_np, x_test_np, y_test_np, epochs=5):
+    model.compile(
+        optimizer='adam',
+        loss='binary_crossentropy',
+        metrics=['accuracy']
+    )
+    history = model.fit(
+        x_train_np,
+        y_train_np,
+        epochs=epochs,
+        validation_data=(x_test_np, y_test_np)
+    )
+    return history
+
+def get_metrics(model, X, y):
+    y_preds = np.round(model.predict(X))
+    return {
+        'accuracy': accuracy_score(y, y_preds),
+        'precision': precision_score(y, y_preds),
+        'recall': recall_score(y, y_preds),
+        'f1-score': f1_score(y, y_preds)
+    }
+
 def main():
     #load the dataset into a df
     df = pd.read_csv('spam.csv', encoding='latin-1')
@@ -44,6 +67,8 @@ def main():
     print(f"Data Loaded. Training samples: {len(x_train_np)}")
     print(f"Average wrod per message: {avg_sms_len}")
     print(f"Approximate vocabulary size: {total_sms_len}")
+
     
+
 if __name__ == "__main__":
     main()
