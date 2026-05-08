@@ -103,6 +103,24 @@ def main():
     bi_lstm_model = keras.Model(input_layer, output_layer, name="BiLSTM_Model")
     bi_lstm_history = compile_and_fit(bi_lstm_model, x_train_np, y_train_np, x_test_np, y_test_np)
 
+    #create the third model (Universal Sentence Encoding)
+    use_layer = hub.KerasLayer(
+        "https://tfhub.dev/google/universal-sentence-encoder/4",
+        trainable=False,
+        input_shape=[],
+        dtype=tf.string,
+        name='USE'
+    )
 
+    input_layer = layers.Input(shape=[], dtype=tf.string)
+    embedding = layers.Lambda(lambda x: use_layer(
+        x), output_shape=(512,))(input_layer)
+    x = layers.Dense(64, activation='relu')(embedding)
+    x = layers.Dropout(0.2)(x)
+    output_layer = layers.Dense(1, activation='sigmoid')(x)
+
+    sentence_encoding_model = keras.Model(input_layer, output_layer, name="USE_Model")
+    sentence_encoding_history = compile_and_fit(sentence_encoding_model, x_train_np, y_train_np, x_test_np, y_test_np)
+    
 if __name__ == "__main__":
     main()
