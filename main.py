@@ -5,7 +5,7 @@ import seaborn as sns
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from tensorflow.keras.layers import TextVecotrization
+from tensorflow.keras.layers import TextVectorization
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import tensorflow_hub as hub
@@ -69,14 +69,26 @@ def main():
     print(f"Average wrod per message: {avg_sms_len}")
     print(f"Approximate vocabulary size: {total_sms_len}")
 
-    text_vec = TextVecotrization(
+    text_vec = TextVectorization(
         max_tokens=total_sms_len,
         standardize='lower_and_strip_punctuation',
         output_mode='int',
-        output_sequence_len=avg_sms_len
+        output_sequence_length=avg_sms_len
     )
 
     text_vec.adapt(x_train_np)
+
+    #create the first model (Dense Embedding Model)
+    input_layer = layers.Input(shape=(1,), dtype=tf.string)
+    x = text_vec(input_layer)
+    x = layers.Embedding(input_dim=total_sms_len, output_dim=128)(x)
+    x = layers.GlobalAveragePooling1D()(x)
+    x = layers.Dense(32, activation='relu')(x)
+    output_layer = layers.Dense(1, activation='sigmoid')(x)
+
+    dense_embedding_model = keras.Model(input_layer, output_layer, name="Dense_Model")
+    dense_embedding_history = compile_and_fit(dense_embedding_model, x_train_np, y_train_np, x_test_np, y_test_np)
+
 
 if __name__ == "__main__":
     main()
